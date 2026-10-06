@@ -1,8 +1,8 @@
 import pytest
 import requests
+from lib.base_case import BaseCase
 
-
-class TestUserAuth:
+class TestUserAuth(BaseCase):
     exclude_params = [
         ("no_cookie"),
         ("no_token")
@@ -14,27 +14,15 @@ class TestUserAuth:
             "password": "1234"
         }
 
-        # отправляем POST-запрос на логин
-        # Проверяем, что сервер вернул cookie-сессию, CSRF-токен и user_id
         response1 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
 
-        # Проверяем, что в ответе есть cookie auth_sid, сессия создана
-        assert "auth_sid" in response1.cookies, "There is no auth cookie in the response"
-        # Проверяем, что в заголовках есть x-csrf-token нужен для защиты от CSRF-атак
-        assert "x-csrf-token" in response1.headers, "There is no CSRF token header in the response"
-        # Проверяем, что в JSON-ответе есть user_id, сервер распознал пользователя
-        assert "user_id" in response1.json(), "There is no user id in the response"
-
-        # Извлекаем значения для повторной проверки авторизации
-        self.auth_sid = response1.cookies.get("auth_sid")  # идентификатор сессии
-        self.token = response1.headers.get("x-csrf-token")  # CSRF-токен из заголовка
-        self.user_id_from_auth_method = response1.json()["user_id"]  # user_id из первого ответа
+        self.auth_sid = self.get_cookie(response1, "auth_sid")
+        self.token = self.get_header(response1, "x_csrf_token")
+        self.user_id_from_auth_method = self.get_json_value(response1, "user_id")
 
     def test_auth_user(self):
 
-        # отправляем GET-запрос на /api/user/auth
-        # Передаём те же cookie и токен, что получили при логине
-        # проверяем, что сервер узнаёт пользователя по сессии
+
         response2 = requests.get(
         "https://playground.learnqa.ru/api/user/auth",
             headers={"x-csrf-token": self.token},
@@ -68,4 +56,5 @@ class TestUserAuth:
         user_id_from_check_method = response2.json()["user_id"]
 
         assert user_id_from_check_method == 0, f"User is authorized with condition {condition}"
+
 
