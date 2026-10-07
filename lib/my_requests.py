@@ -1,5 +1,7 @@
 import requests
 
+from lib.logger import Logger
+
 
 class MyRequests:
 
@@ -31,6 +33,8 @@ class MyRequests:
         if cookies is None:
             cookies = {}
 
+        Logger.add_request(url, data, headers, cookies, method)
+
 
         if method == "GET":
             response = requests.get(url, params=data, headers=headers, cookies=cookies)
@@ -42,5 +46,7 @@ class MyRequests:
             response = requests.delete(url, data=data, headers=headers, cookies=cookies)
         else:
             raise Exception(f"Bad HTTP method '{method}' was received")
+
+        Logger.add_response(response)
 
         return response
