@@ -26,7 +26,7 @@ class MyRequests:
     @staticmethod
     def _send(url: str, data: dict, headers: dict, cookies: dict, method: str):
 
-        url = f"https://playground.learnqa.ru/api/{url}"
+        url = f"https://playground.learnqa.ru/{url}".rstrip("/")
 
         if headers is None:
             headers = {}
@@ -50,3 +50,6 @@ class MyRequests:
         Logger.add_response(response)
 
         return response
+
+    # python -m pytest --alluredir=test_results/ tests/test_user_auth.py
+    # allure serve test_results
