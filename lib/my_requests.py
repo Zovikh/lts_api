@@ -24,7 +24,7 @@ class MyRequests:
     @staticmethod
     def _send(url: str, data: dict, headers: dict, cookies: dict, method: str):
 
-        url = f"https://playground.learnqa.ru{url}"
+        url = f"https://playground.learnqa.ru/api/{url}"
 
         if headers is None:
             headers = {}
